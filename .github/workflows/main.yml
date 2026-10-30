@@ -1,4 +1,10 @@
+
 name: Model Training CICD
+
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -10,21 +16,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Get repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3. Setup CML
       - name: Setup CML
         uses: iterative/setup-cml@v2
+        with:
+          vega: false
 
-      # 4. Train ML models and generate reports
       - name: Train model
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,9 +40,10 @@ jobs:
           echo "## RF and LR Model Score" > report.md
           cat scores.txt >> report.md
 
-          echo "Confusion Matrix & Feature Importance" > report1.md
-          echo '|[](./ConfusionMatrix.png "ConfusionMatrix")' >> report1.md
-          echo '|[](./FeatureImportance.png "FeatureImportance")' >> report1.md
+          echo "## Confusion Matrix & Feature Importance" > report1.md
+
+          echo "![Confusion Matrix](./ConfusionMatrix.png)" >> report1.md
+          echo "![Feature Importance](./FeatureImportance.png)" >> report1.md
 
           cat report.md report1.md > combined_file.md
 
