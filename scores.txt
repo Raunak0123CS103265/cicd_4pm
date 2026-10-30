@@ -1,0 +1,21 @@
+IRIS CLASSIFICATION MODEL RESULTS
+=============================================
+
+Model: Logistic Regression
+Train Accuracy: 71.67%
+Test Accuracy: 70.00%
+Precision: 84.21%
+Recall: 70.00%
+F1 Score: 62.38%
+
+----------------------------------------
+
+Model: Random Forest
+Train Accuracy: 96.67%
+Test Accuracy: 96.67%
+Precision: 96.97%
+Recall: 96.67%
+F1 Score: 96.66%
+
+----------------------------------------
+
