@@ -1,54 +1,45 @@
 name: Model Training CICD
+
 permissions:
-  id-token: write
   contents: write
-on:
-  push:
+  pull-requests: write
+  issues: write
 
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      # 1. Get repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # 2. Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.11'
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcairo2-dev \
-            libjpeg-dev \
-            libpango1.0-dev \
-            libgif-dev \
-            librsvg2-dev
+      # 3. Setup CML
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
 
-      - uses: iterative/setup-cml@v2
-
+      # 4. Train ML models and generate reports
       - name: Train model
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install -r requirements.txt
+
           python train_model.py
 
-          echo "RF and LR Model Score" > report.md
+          echo "## RF and LR Model Score" > report.md
           cat scores.txt >> report.md
 
-          echo "Confusion Matrix & Feature Importance images are available in the Artifacts section of this run." > report1.md
+          echo "Confusion Matrix & Feature Importance" > report1.md
+          echo '|[](./ConfusionMatrix.png "ConfusionMatrix")' >> report1.md
+          echo '|[](./FeatureImportance.png "FeatureImportance")' >> report1.md
 
           cat report.md report1.md > combined_file.md
-          cml comment create combined_file.md
 
-      - name: Upload results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-results
-          path: |
-            scores.txt
-            ConfusionMatrix.png
-            FeatureImportance.png
+          cml comment create combined_file.md
